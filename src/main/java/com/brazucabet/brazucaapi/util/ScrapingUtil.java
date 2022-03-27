@@ -17,8 +17,10 @@ public class ScrapingUtil {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String url = BASE_URL_GOOGLE + "EGITO+X+SENEGAL" + COMPLEMENTO_URL_GOOGLE;
-		
+		String url = BASE_URL_GOOGLE + "fc+emmen+x+sc+telstar" + COMPLEMENTO_URL_GOOGLE;
+									//argentina+x+venezuela
+									//fc+emmen+x+sc+telstar
+									//EGITO+X+SENEGAL
 		ScrapingUtil scraping = new ScrapingUtil();
 		
 		scraping.obtemInformacoesPartida(url);
@@ -34,7 +36,15 @@ public class ScrapingUtil {
 			
 			String title = document.title();
 			
+			StatusPartida statusPartida =  obtemStatusPartida(document);
+			
+			String tempoPartida = obtemTempoPartida(document);
+			
 			LOGGER.info("Titilo da pagina: {}", title);
+			LOGGER.info(statusPartida.toString());
+
+			LOGGER.info("Tempo da Partida: {}",tempoPartida);
+			
 			
 		} catch (IOException e) {
 
@@ -46,5 +56,92 @@ public class ScrapingUtil {
 		
 		return partidaDto;
 	}
+	
+	
+	public StatusPartida obtemStatusPartida(Document document) {
+		// 1 - partida não iniciada
+		// 2 - partida iniciada/ jogo rolando / intervalo
+		// 3 - partida encerrada
+		// 4 - partida penaltis
+		StatusPartida statusPartida = StatusPartida.PARTIDA_NAO_INICIADA;
+		
+		boolean isTempoPartida = document.select("div[class=imso_mh__lv-m-stts-cont]").isEmpty();
+		
+		if(!isTempoPartida) {
+			String tempoPartida = document.select("div[class=imso_mh__lv-m-stts-cont]").first().text();
+			
+			statusPartida = StatusPartida.PARTIDA_EM_ANDAMENTO;
+			
+			if(tempoPartida.contains("Pênaltis")) {
+				statusPartida = StatusPartida.PARTIDA_PENALTIS;
+			}
+			
+		}
+		
+		isTempoPartida = document.select("span[class=imso_mh__ft-mtch imso-medium-font imso_mh__ft-mtchc]").isEmpty();
+		
+		if(!isTempoPartida) {
+			statusPartida = StatusPartida.PARTIDA_ENCERRADA;
+			
+		}
+		
+		
+		return statusPartida;
+	}
+	
+	
+	
+	public String obtemTempoPartida(Document document) {
+		
+		String tempoPartida = null;
+		
+		// Jogo rolando, penalidades ou intervalo
+		Boolean isTempoPartida = document.select("div[class=imso_mh__lv-m-stts-cont]").isEmpty();
+		                                                     
+		if(!isTempoPartida) {
+			try {
+			tempoPartida = document.select("div[class=imso_mh__lv-m-stts-cont]").first().text();
+			}catch (Exception e) {
+				// TODO: handle exception
+			}
+		}
+		
+		isTempoPartida = document.select("span[class=imso_mh__ft-mtch imso-medium-font imso_mh__ft-mtchc]").isEmpty();
+		
+		if(!isTempoPartida) {
+		
+			tempoPartida = document.select("span[class=imso_mh__ft-mtch imso-medium-font imso_mh__ft-mtchc]").first().text();
+		}
+		
+		return validaTempoPartida(tempoPartida);
+	}
+	
+	
+	private String validaTempoPartida(String tempoPartida) {
+		
+		if(tempoPartida.contains("'")) {
+			
+			tempoPartida = tempoPartida.replace("' ", "min");
+		}else if(tempoPartida.contains("+")) {
+			tempoPartida = tempoPartida.replace(" ", "").concat("min");
+		}
+		
+		return tempoPartida;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
