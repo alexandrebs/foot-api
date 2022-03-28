@@ -30,13 +30,16 @@ public class ScrapingUtil {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScrapingUtil.class);
 	private static final String BASE_URL_GOOGLE = "https://www.google.com/search?q=";
 	private static final String COMPLEMENTO_URL_GOOGLE = "&hl=pt-BR";
+	private static final String CASA = "casa";
+	private static final String VISITANTE = "visitante";
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String url = BASE_URL_GOOGLE + "fc+emmen+x+sc+telstar" + COMPLEMENTO_URL_GOOGLE;
+		String url = BASE_URL_GOOGLE + "corinthians x guarani" + COMPLEMENTO_URL_GOOGLE;
 		// argentina+x+venezuela
 		// fc+emmen+x+sc+telstar
 		// EGITO+X+SENEGAL
+		// corinthians x guarani
 		ScrapingUtil scraping = new ScrapingUtil();
 
 		scraping.obtemInformacoesPartida(url);
@@ -71,6 +74,12 @@ public class ScrapingUtil {
 
 				String golsJogadorCasa = obtemGolsJogadosCasa(document);
 				LOGGER.info("Gols Jogador Casa: {}", golsJogadorCasa);
+
+				int resultadoPenaltiCasa = obtemResutatoPenalti(document, CASA);
+				LOGGER.info("", resultadoPenaltiCasa);
+
+				int resultadoPenaltiVisitante = obtemResutatoPenalti(document, VISITANTE);
+				LOGGER.info("", resultadoPenaltiVisitante);
 			}
 
 			String nomeEquipeCasa = obtemNomeEquipeCasa(document);
@@ -92,6 +101,37 @@ public class ScrapingUtil {
 		}
 
 		return partidaDto;
+	}
+
+	public Integer obtemResutatoPenalti(Document document, String tipoEquipe) {
+
+		Boolean isPenalti = document.select("div[class=imso_mh_s__psn-sc]").isEmpty();
+		String[] penalidadeCompleta = null;
+		if (!isPenalti) {
+
+			String resultado = document.select("div[class=imso_mh_s__psn-sc]").text();
+
+			String divisao = resultado.substring(0, 5).replace(" ", "");
+
+			penalidadeCompleta = divisao.split("-");
+			return (tipoEquipe.equals("casa")) ? validarPenalti(penalidadeCompleta[0])
+					: validarPenalti(penalidadeCompleta[1]);
+		}
+
+		return null;
+	}
+
+	public Integer validarPenalti(String resultadoGols) {
+		Integer valor;
+		try {
+			valor = Integer.parseInt(resultadoGols);
+
+		} catch (Exception e) {
+
+			valor = 0;
+		}
+
+		return valor;
 	}
 
 	public StatusPartida obtemStatusPartida(Document document) {
@@ -226,37 +266,38 @@ public class ScrapingUtil {
 		return placarVisitante;
 	}
 
-	
 	private String obtemGolsJogadosCasa(Document document) {
 
-		ArrayList<String> golsCasa  = new ArrayList<>();
-		
-		Elements elements = document.selectFirst("div[class=imso_gs__tgs imso_gs__left-team]").select("div[class=imso_gs__gs-r]");
-		
+		ArrayList<String> golsCasa = new ArrayList<>();
+
+		Elements elements = document.selectFirst("div[class=imso_gs__tgs imso_gs__left-team]")
+				.select("div[class=imso_gs__gs-r]");
+
 		for (org.jsoup.nodes.Element e : elements) {
-		
+
 			String golsAux = e.select("div[class=imso_gs__gs-r]").text();
 			golsCasa.add(golsAux);
 		}
-		
+
 		return String.join(", ", golsCasa).replace("'", " min");
 	}
 
 	private String obtemGolsJogadosVisitante(Document document) {
 
-		ArrayList<String> golsVisitante  = new ArrayList<>();
-		
-		Elements elements = document.selectFirst("div[class=imso_gs__tgs imso_gs__right-team]").select("div[class=imso_gs__gs-r]");
-		
+		ArrayList<String> golsVisitante = new ArrayList<>();
+
+		Elements elements = document.selectFirst("div[class=imso_gs__tgs imso_gs__right-team]")
+				.select("div[class=imso_gs__gs-r]");
+
 		for (org.jsoup.nodes.Element e : elements) {
-		
+
 			String golsAux = e.select("div[class=imso_gs__gs-r]").text();
 			golsVisitante.add(golsAux);
 		}
-		
+
 		return String.join(", ", golsVisitante).replace("'", " min");
 	}
-	
+
 	private void request() throws IOException {
 
 		URL url = null;
