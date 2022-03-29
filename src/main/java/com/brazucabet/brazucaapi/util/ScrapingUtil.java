@@ -33,6 +33,19 @@ public class ScrapingUtil {
 	private static final String CASA = "casa";
 	private static final String VISITANTE = "visitante";
 
+	// constantes 
+	private static final String RESULTADO_PENALTI = "div[class=imso_mh_s__psn-sc]";
+	private static final String STATUS_PARTIDA = "div[class=imso_mh__lv-m-stts-cont]";
+	private static final String OBTEM_TEMPO_PARTIDA = "span[class=imso_mh__ft-mtch imso-medium-font imso_mh__ft-mtchc]";
+	private static final String NOME_EQUIPE = "div[class=imso_mh__second-tn-ed imso_mh__tnal-cont imso-tnol]";
+	private static final String OBTEM_NOME_EQUIPE_VISITANTE = "div[class=imso_mh__second-tn-ed imso_mh__tnal-cont imso-tnol]";
+	private static final String OBTEM_NOME_EQUIPE_CASA = "div[class=imso_mh__first-tn-ed imso_mh__tnal-cont imso-tnol]";
+	private static final String SELECT_ELEMENTO_IMAGEM = "div[class=imso_mh__t-l-cont kno-fb-ctx]";
+	private static final String OBTEM_LOGO = "img[class=imso_btl__mh-logo]";
+	private static final String OBTEM_PLACAR = "div[class=imso_mh__ma-sc-cont]";
+	private static final String PLACAR_CASA = "div[class=imso_mh__l-tm-sc imso_mh__scr-it imso-light-font]";
+	private static final String PLACAR_VISITANTE = "div[class=imso_mh__r-tm-sc imso_mh__scr-it imso-light-font]";
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		String url = BASE_URL_GOOGLE + "corinthians x guarani" + COMPLEMENTO_URL_GOOGLE;
@@ -66,32 +79,36 @@ public class ScrapingUtil {
 
 				LOGGER.info("Tempo da Partida: {}", tempoPartida);
 
-				String placarCasa = obtemPlacarCasa(document);
+				String placarCasa = obtemPlacar(document, PLACAR_CASA);
 				LOGGER.info("Placar casa: {}", placarCasa);
 
-				String placarVisitante = obtemPlacarVisitante(document);
+				String placarVisitante = obtemPlacar(document, PLACAR_VISITANTE);
 				LOGGER.info("Placar visitante: {}", placarVisitante);
 
 				String golsJogadorCasa = obtemGolsJogadosCasa(document);
 				LOGGER.info("Gols Jogador Casa: {}", golsJogadorCasa);
+				
+				String golsJogadorVisitante = obtemGolsJogadosVisitante(document);
+				LOGGER.info("Gols Jogador Visitante: {}", golsJogadorVisitante);
+				
 
 				int resultadoPenaltiCasa = obtemResutatoPenalti(document, CASA);
-				LOGGER.info("", resultadoPenaltiCasa);
+				LOGGER.info("Penalti casa: {}", resultadoPenaltiCasa);
 
 				int resultadoPenaltiVisitante = obtemResutatoPenalti(document, VISITANTE);
-				LOGGER.info("", resultadoPenaltiVisitante);
+				LOGGER.info("Penalti visitante: {}", resultadoPenaltiVisitante);
 			}
 
-			String nomeEquipeCasa = obtemNomeEquipeCasa(document);
+			String nomeEquipeCasa = obtemNomeEquipe(document, OBTEM_NOME_EQUIPE_CASA);
 			LOGGER.info("Equipe casa: {}", nomeEquipeCasa);
 
-			String nomeEquipevisitante = obtemNomeEquipeVisitante(document);
+			String nomeEquipevisitante = obtemNomeEquipe(document, OBTEM_NOME_EQUIPE_VISITANTE);
 			LOGGER.info("Equipe visitante: {}", nomeEquipevisitante);
 
-			String logoEquipeCasa = obtemImagemEquipeCasa(document);
+			String logoEquipeCasa = obtemImagemEquipe(document, OBTEM_NOME_EQUIPE_CASA);
 			LOGGER.info("Logo Equipe casa: {}", logoEquipeCasa);
 
-			String logoEquipeVisitante = obtemImagemEquipeVisitante(document);
+			String logoEquipeVisitante = obtemImagemEquipe(document, OBTEM_NOME_EQUIPE_VISITANTE);
 			LOGGER.info("Logo Equipe visitante: {}", logoEquipeVisitante);
 
 		} catch (IOException e) {
@@ -105,11 +122,11 @@ public class ScrapingUtil {
 
 	public Integer obtemResutatoPenalti(Document document, String tipoEquipe) {
 
-		Boolean isPenalti = document.select("div[class=imso_mh_s__psn-sc]").isEmpty();
+		Boolean isPenalti = document.select(RESULTADO_PENALTI).isEmpty();
 		String[] penalidadeCompleta = null;
 		if (!isPenalti) {
 
-			String resultado = document.select("div[class=imso_mh_s__psn-sc]").text();
+			String resultado = document.select(RESULTADO_PENALTI).text();
 
 			String divisao = resultado.substring(0, 5).replace(" ", "");
 
@@ -141,10 +158,10 @@ public class ScrapingUtil {
 		// 4 - partida penaltis
 		StatusPartida statusPartida = StatusPartida.PARTIDA_NAO_INICIADA;
 
-		boolean isTempoPartida = document.select("div[class=imso_mh__lv-m-stts-cont]").isEmpty();
+		boolean isTempoPartida = document.select(STATUS_PARTIDA).isEmpty();
 
 		if (!isTempoPartida) {
-			String tempoPartida = document.select("div[class=imso_mh__lv-m-stts-cont]").first().text();
+			String tempoPartida = document.select(STATUS_PARTIDA).first().text();
 
 			statusPartida = StatusPartida.PARTIDA_EM_ANDAMENTO;
 
@@ -154,7 +171,7 @@ public class ScrapingUtil {
 
 		}
 
-		isTempoPartida = document.select("span[class=imso_mh__ft-mtch imso-medium-font imso_mh__ft-mtchc]").isEmpty();
+		isTempoPartida = document.select(OBTEM_TEMPO_PARTIDA).isEmpty();
 
 		if (!isTempoPartida) {
 			statusPartida = StatusPartida.PARTIDA_ENCERRADA;
@@ -169,21 +186,21 @@ public class ScrapingUtil {
 		String tempoPartida = null;
 
 		// Jogo rolando, penalidades ou intervalo
-		Boolean isTempoPartida = document.select("div[class=imso_mh__lv-m-stts-cont]").isEmpty();
+		Boolean isTempoPartida = document.select(STATUS_PARTIDA).isEmpty();
 
 		if (!isTempoPartida) {
 			try {
-				tempoPartida = document.select("div[class=imso_mh__lv-m-stts-cont]").first().text();
+				tempoPartida = document.select(STATUS_PARTIDA).first().text();
 			} catch (Exception e) {
 				// TODO: handle exception
 			}
 		}
 
-		isTempoPartida = document.select("span[class=imso_mh__ft-mtch imso-medium-font imso_mh__ft-mtchc]").isEmpty();
+		isTempoPartida = document.select(OBTEM_TEMPO_PARTIDA).isEmpty();
 
 		if (!isTempoPartida) {
 
-			tempoPartida = document.select("span[class=imso_mh__ft-mtch imso-medium-font imso_mh__ft-mtchc]").first()
+			tempoPartida = document.select(OBTEM_TEMPO_PARTIDA).first()
 					.text();
 		}
 
@@ -202,70 +219,40 @@ public class ScrapingUtil {
 		return tempoPartida;
 	}
 
-	private String obtemNomeEquipeCasa(Document document) {
+	
+	private String obtemNomeEquipe(Document document, String tipoEquipe) {
 
 		org.jsoup.nodes.Element elemento = document
-				.selectFirst("div[class=imso_mh__first-tn-ed imso_mh__tnal-cont imso-tnol]");
-
-		String nomeEquipeCasa = elemento.select("span").text();
-
-		return nomeEquipeCasa;
-	}
-
-	private String obtemNomeEquipeVisitante(Document document) {
-
-		org.jsoup.nodes.Element elemento = document
-				.selectFirst("div[class=imso_mh__second-tn-ed imso_mh__tnal-cont imso-tnol]");
+				.selectFirst(tipoEquipe);
 
 		String nomeEquipeVisitante = elemento.select("span").text();
 
 		return nomeEquipeVisitante;
 	}
 
-	private String obtemImagemEquipeCasa(Document document) {
+	private String obtemImagemEquipe(Document document, String tagEquipe) {
 
 		org.jsoup.nodes.Element element = document
-				.selectFirst("div[class=imso_mh__first-tn-ed imso_mh__tnal-cont imso-tnol]");
+				.selectFirst(tagEquipe);
 
-		element = element.selectFirst("div[class=imso_mh__t-l-cont kno-fb-ctx]");
+		element = element.selectFirst(SELECT_ELEMENTO_IMAGEM);
 
-		String logoEquipeCasa = element.select("img[class=imso_btl__mh-logo]").attr("src");
-
+		String logoEquipeCasa = element.select(OBTEM_LOGO).attr("src");
 		return logoEquipeCasa;
 	}
 
-	private String obtemImagemEquipeVisitante(Document document) {
+	
+	private String obtemPlacar(Document document, String tagTipoEquipe) {
 
-		org.jsoup.nodes.Element element = document
-				.selectFirst("div[class=imso_mh__second-tn-ed imso_mh__tnal-cont imso-tnol]");
+		org.jsoup.nodes.Element element = document.selectFirst(OBTEM_PLACAR);
 
-		element = element.selectFirst("div[class=imso_mh__t-l-cont kno-fb-ctx]");
-
-		String logoEquipeVisitante = element.select("img[class=imso_btl__mh-logo]").attr("src");
-
-		return logoEquipeVisitante;
-	}
-
-	private String obtemPlacarCasa(Document document) {
-
-		org.jsoup.nodes.Element element = document.selectFirst("div[class=imso_mh__ma-sc-cont]");
-
-		String placarCasa = element.select("div[class=imso_mh__l-tm-sc imso_mh__scr-it imso-light-font]").first()
+		String placarCasa = element.select(tagTipoEquipe).first()
 				.text();
 
 		return placarCasa;
 	}
 
-	private String obtemPlacarVisitante(Document document) {
-
-		org.jsoup.nodes.Element element = document.selectFirst("div[class=imso_mh__ma-sc-cont]");
-
-		String placarVisitante = element.select("div[class=imso_mh__r-tm-sc imso_mh__scr-it imso-light-font]").first()
-				.text();
-
-		return placarVisitante;
-	}
-
+	
 	private String obtemGolsJogadosCasa(Document document) {
 
 		ArrayList<String> golsCasa = new ArrayList<>();
