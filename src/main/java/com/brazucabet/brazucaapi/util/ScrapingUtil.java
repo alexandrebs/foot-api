@@ -20,11 +20,13 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.server.Encoding;
+import org.springframework.stereotype.Service;
 
 import com.brazucabet.brazucaapi.dto.PartidaDTO;
 
 import ch.qos.logback.core.encoder.EncoderBase;
 
+@Service
 public class ScrapingUtil {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScrapingUtil.class);
@@ -46,19 +48,22 @@ public class ScrapingUtil {
 	private static final String PLACAR_CASA = "div[class=imso_mh__l-tm-sc imso_mh__scr-it imso-light-font]";
 	private static final String PLACAR_VISITANTE = "div[class=imso_mh__r-tm-sc imso_mh__scr-it imso-light-font]";
 	
+	/*
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		String url = BASE_URL_GOOGLE + "corinthians x guarani" + COMPLEMENTO_URL_GOOGLE;
-		// argentina+x+venezuela
+	   // argentina+x+venezuela
 		// fc+emmen+x+sc+telstar
 		// EGITO+X+SENEGAL
 		// corinthians x guarani
+		
+		
 		ScrapingUtil scraping = new ScrapingUtil();
 
+		String url =scraping.montaUrlGoogle("corinthians", "guarani");
+		
 		scraping.obtemInformacoesPartida(url);
 
 	}
-
+*/
 	public PartidaDTO obtemInformacoesPartida(String URL) {
 
 		PartidaDTO partidaDto = new PartidaDTO();
@@ -69,47 +74,62 @@ public class ScrapingUtil {
 			String title = document.title();
 
 			StatusPartida statusPartida = obtemStatusPartida(document);
-
+			partidaDto.setStatusPartida(statusPartida.toString());
+			
 			String tempoPartida = obtemTempoPartida(document);
-			request();
+			partidaDto.setTempoPartida(tempoPartida);
+			
+			
+			//request();
 			LOGGER.info("Titilo da pagina: {}", title);
 			LOGGER.info(statusPartida.toString());
+			
 
 			if (statusPartida != StatusPartida.PARTIDA_NAO_INICIADA) {
 
 				LOGGER.info("Tempo da Partida: {}", tempoPartida);
 
 				String placarCasa = obtemPlacar(document, PLACAR_CASA);
-				LOGGER.info("Placar casa: {}", placarCasa);
+				partidaDto.setPlacarCasa(Integer.parseInt( placarCasa));
+				//LOGGER.info("Placar casa: {}", placarCasa);
 
 				String placarVisitante = obtemPlacar(document, PLACAR_VISITANTE);
-				LOGGER.info("Placar visitante: {}", placarVisitante);
+				partidaDto.setPlacarVisitante(Integer.parseInt(placarVisitante));
+				//LOGGER.info("Placar visitante: {}", placarVisitante);
 
 				String golsJogadorCasa = obtemGolsJogadosCasa(document);
-				LOGGER.info("Gols Jogador Casa: {}", golsJogadorCasa);
+				partidaDto.setGolsEquipeCasa(golsJogadorCasa);
+				//LOGGER.info("Gols Jogador Casa: {}", golsJogadorCasa);
 				
 				String golsJogadorVisitante = obtemGolsJogadosVisitante(document);
-				LOGGER.info("Gols Jogador Visitante: {}", golsJogadorVisitante);
+				partidaDto.setGolsEquipeVisitante(golsJogadorVisitante);
+				//LOGGER.info("Gols Jogador Visitante: {}", golsJogadorVisitante);
 				
 
 				int resultadoPenaltiCasa = obtemResutatoPenalti(document, CASA);
-				LOGGER.info("Penalti casa: {}", resultadoPenaltiCasa);
+				partidaDto.setPlacarEstendidoEquipeCasa(Integer.toString(resultadoPenaltiCasa));
+				//LOGGER.info("Penalti casa: {}", resultadoPenaltiCasa);
 
 				int resultadoPenaltiVisitante = obtemResutatoPenalti(document, VISITANTE);
-				LOGGER.info("Penalti visitante: {}", resultadoPenaltiVisitante);
+				partidaDto.setPlacarEstendidoEquipeVisitante(Integer.toString(resultadoPenaltiVisitante));
+				//LOGGER.info("Penalti visitante: {}", resultadoPenaltiVisitante);
 			}
 
 			String nomeEquipeCasa = obtemNomeEquipe(document, OBTEM_NOME_EQUIPE_CASA);
-			LOGGER.info("Equipe casa: {}", nomeEquipeCasa);
+			partidaDto.setNomeEquipeCasa(nomeEquipeCasa);
+			//LOGGER.info("Equipe casa: {}", nomeEquipeCasa);
 
 			String nomeEquipevisitante = obtemNomeEquipe(document, OBTEM_NOME_EQUIPE_VISITANTE);
-			LOGGER.info("Equipe visitante: {}", nomeEquipevisitante);
+			partidaDto.setNomeEquipeVisitante(nomeEquipevisitante);
+			//LOGGER.info("Equipe visitante: {}", nomeEquipevisitante);
 
 			String logoEquipeCasa = obtemImagemEquipe(document, OBTEM_NOME_EQUIPE_CASA);
-			LOGGER.info("Logo Equipe casa: {}", logoEquipeCasa);
+			partidaDto.setUrlLogEquipeCasa(logoEquipeCasa);
+			//LOGGER.info("Logo Equipe casa: {}", logoEquipeCasa);
 
 			String logoEquipeVisitante = obtemImagemEquipe(document, OBTEM_NOME_EQUIPE_VISITANTE);
-			LOGGER.info("Logo Equipe visitante: {}", logoEquipeVisitante);
+			partidaDto.setUrlLogEquipeVisitante(logoEquipeVisitante);
+			//LOGGER.info("Logo Equipe visitante: {}", logoEquipeVisitante);
 
 		} catch (IOException e) {
 
@@ -327,6 +347,22 @@ public class ScrapingUtil {
 		Scanner s = new Scanner(responseStream).useDelimiter("\\A");
 		String response = s.hasNext() ? s.next() : "";
 		System.out.println(response);
+	}
+	
+	public String montaUrlGoogle(String nomeEquipeCasa, String nomeEquipeVisitante) {
+		
+		try {
+			
+			String equipeCasa = nomeEquipeCasa.replace(" ", "+").replace("-", "+");
+			String equipeVisitante = nomeEquipeVisitante.replace(" ", "+").replace("-", "+");
+			
+			return BASE_URL_GOOGLE+equipeCasa +"x"+ equipeVisitante+ COMPLEMENTO_URL_GOOGLE;
+			
+		}catch(Exception e) {
+			LOGGER.error("Error: {}", e);
+		}
+		
+		return null;
 	}
 
 }
