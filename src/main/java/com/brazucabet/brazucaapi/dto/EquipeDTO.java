@@ -26,14 +26,15 @@ public class EquipeDTO implements Serializable {
 
 	
 	@NotBlank
-	private String nomeEquipeCasa;
+	private String nomeEquipe;
 	
 	@NotBlank
-	private String nomeEquipeVisitante;
+	private String urlLogoEquipe;
 	
+/*	
 	@NotNull
 	@ApiModelProperty(example="dd/mm/yyyy HH:mm")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm", timezone = "America/Sao_Paulo")
 	private Date dataHoraPartida; 
-	
+	*/
 }
