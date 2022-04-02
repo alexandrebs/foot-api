@@ -91,45 +91,45 @@ public class ScrapingUtil {
 
 				String placarCasa = obtemPlacar(document, PLACAR_CASA);
 				partidaDto.setPlacarCasa(Integer.parseInt( placarCasa));
-				//LOGGER.info("Placar casa: {}", placarCasa);
+				LOGGER.info("Placar casa: {}", placarCasa);
 
 				String placarVisitante = obtemPlacar(document, PLACAR_VISITANTE);
 				partidaDto.setPlacarVisitante(Integer.parseInt(placarVisitante));
-				//LOGGER.info("Placar visitante: {}", placarVisitante);
+				LOGGER.info("Placar visitante: {}", placarVisitante);
 
 				String golsJogadorCasa = obtemGolsJogadosCasa(document);
 				partidaDto.setGolsEquipeCasa(golsJogadorCasa);
-				//LOGGER.info("Gols Jogador Casa: {}", golsJogadorCasa);
+				LOGGER.info("Gols Jogador Casa: {}", golsJogadorCasa);
 				
 				String golsJogadorVisitante = obtemGolsJogadosVisitante(document);
 				partidaDto.setGolsEquipeVisitante(golsJogadorVisitante);
-				//LOGGER.info("Gols Jogador Visitante: {}", golsJogadorVisitante);
+				LOGGER.info("Gols Jogador Visitante: {}", golsJogadorVisitante);
 				
 
 				int resultadoPenaltiCasa = obtemResutatoPenalti(document, CASA);
 				partidaDto.setPlacarEstendidoEquipeCasa(Integer.toString(resultadoPenaltiCasa));
-				//LOGGER.info("Penalti casa: {}", resultadoPenaltiCasa);
+				LOGGER.info("Penalti casa: {}", resultadoPenaltiCasa);
 
 				int resultadoPenaltiVisitante = obtemResutatoPenalti(document, VISITANTE);
 				partidaDto.setPlacarEstendidoEquipeVisitante(Integer.toString(resultadoPenaltiVisitante));
-				//LOGGER.info("Penalti visitante: {}", resultadoPenaltiVisitante);
+				LOGGER.info("Penalti visitante: {}", resultadoPenaltiVisitante);
 			}
 
 			String nomeEquipeCasa = obtemNomeEquipe(document, OBTEM_NOME_EQUIPE_CASA);
 			partidaDto.setNomeEquipeCasa(nomeEquipeCasa);
-			//LOGGER.info("Equipe casa: {}", nomeEquipeCasa);
+			LOGGER.info("Equipe casa: {}", nomeEquipeCasa);
 
 			String nomeEquipevisitante = obtemNomeEquipe(document, OBTEM_NOME_EQUIPE_VISITANTE);
 			partidaDto.setNomeEquipeVisitante(nomeEquipevisitante);
-			//LOGGER.info("Equipe visitante: {}", nomeEquipevisitante);
+			LOGGER.info("Equipe visitante: {}", nomeEquipevisitante);
 
 			String logoEquipeCasa = obtemImagemEquipe(document, OBTEM_NOME_EQUIPE_CASA);
 			partidaDto.setUrlLogEquipeCasa(logoEquipeCasa);
-			//LOGGER.info("Logo Equipe casa: {}", logoEquipeCasa);
+			LOGGER.info("Logo Equipe casa: {}", logoEquipeCasa);
 
 			String logoEquipeVisitante = obtemImagemEquipe(document, OBTEM_NOME_EQUIPE_VISITANTE);
 			partidaDto.setUrlLogEquipeVisitante(logoEquipeVisitante);
-			//LOGGER.info("Logo Equipe visitante: {}", logoEquipeVisitante);
+			LOGGER.info("Logo Equipe visitante: {}", logoEquipeVisitante);
 
 		} catch (IOException e) {
 

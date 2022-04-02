@@ -19,7 +19,7 @@ public class SwaggerConfig {
 
 	private static final String BASE_PACKAGE ="com.brazucabet.brazucaapi.controller";
 	private static final String API_TITULO ="BRAZUCA API";
-	private static final String API_DESCRICAO ="APRI REST que obtem dados da partida dos compeonatos de futebol em tempo real utilizando técnicas de Scraping";
+	private static final String API_DESCRICAO ="API REST que obtem dados da partida dos compeonatos de futebol em tempo real utilizando técnicas de Scraping";
 	private static final String API_VERSAO = "1.0.0";
 	private static final String CONTATO_NOME ="Alexandre B Santana";
 	private static final String CONTATO_GITHUB="https://github.com/alexandrebs";
