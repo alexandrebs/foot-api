@@ -1,7 +1,15 @@
 package com.brazucabet.brazucaapi.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
+
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,21 +23,20 @@ public class PartidaDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String statusPartida;
-	private String tempoPartida;
-
+	
 	// Informação da equipe da casa
+	@NotBlank
 	private String nomeEquipeCasa;
-	private String urlLogEquipeCasa;
-	private Integer placarCasa;
-	private String golsEquipeCasa;
-	private String placarEstendidoEquipeCasa;
-
-	// Informação da equipe da visitante
+	
+	@NotBlank
 	private String nomeEquipeVisitante;
-	private String urlLogEquipeVisitante;
-	private Integer placarVisitante;
-	private String golsEquipeVisitante;
-	private String placarEstendidoEquipeVisitante;
-
+	
+	@NotBlank
+	private String localPartida; 
+	
+	@NotNull
+	@ApiModelProperty(example = "dd/MM/yyyy hh:mm")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy hh:mm", timezone = "America/Sao_Paulo")
+	private Date dataHoraPartida;
+	
 }

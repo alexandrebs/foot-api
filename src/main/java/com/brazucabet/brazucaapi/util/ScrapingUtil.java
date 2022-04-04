@@ -23,6 +23,8 @@ import org.springframework.boot.web.servlet.server.Encoding;
 import org.springframework.stereotype.Service;
 
 import com.brazucabet.brazucaapi.dto.PartidaDTO;
+import com.brazucabet.brazucaapi.dto.PartidaGoogleDTO;
+import com.brazucabet.brazucaapi.entity.Partida;
 
 import ch.qos.logback.core.encoder.EncoderBase;
 
@@ -64,9 +66,9 @@ public class ScrapingUtil {
 
 	}
 */
-	public PartidaDTO obtemInformacoesPartida(String URL) {
+	public PartidaGoogleDTO obtemInformacoesPartida(String URL) {
 
-		PartidaDTO partidaDto = new PartidaDTO();
+		PartidaGoogleDTO partidaGoogleDTO = new PartidaGoogleDTO();
 
 		try {
 			Document document = Jsoup.connect(URL).get();
@@ -74,10 +76,10 @@ public class ScrapingUtil {
 			String title = document.title();
 
 			StatusPartida statusPartida = obtemStatusPartida(document);
-			partidaDto.setStatusPartida(statusPartida.toString());
+			partidaGoogleDTO.setStatusPartida(statusPartida);
 			
 			String tempoPartida = obtemTempoPartida(document);
-			partidaDto.setTempoPartida(tempoPartida);
+			partidaGoogleDTO.setTempoPartida(tempoPartida);
 			
 			
 			//request();
@@ -90,45 +92,45 @@ public class ScrapingUtil {
 				LOGGER.info("Tempo da Partida: {}", tempoPartida);
 
 				String placarCasa = obtemPlacar(document, PLACAR_CASA);
-				partidaDto.setPlacarCasa(Integer.parseInt( placarCasa));
+				partidaGoogleDTO.setPlacarEquipeCasa(Integer.parseInt( placarCasa));
 				LOGGER.info("Placar casa: {}", placarCasa);
 
 				String placarVisitante = obtemPlacar(document, PLACAR_VISITANTE);
-				partidaDto.setPlacarVisitante(Integer.parseInt(placarVisitante));
+				partidaGoogleDTO.setPlacarEquipeVisitante(Integer.parseInt(placarVisitante));
 				LOGGER.info("Placar visitante: {}", placarVisitante);
 
 				String golsJogadorCasa = obtemGolsJogadosCasa(document);
-				partidaDto.setGolsEquipeCasa(golsJogadorCasa);
+				partidaGoogleDTO.setGolsEquipeCasa(golsJogadorCasa);
 				LOGGER.info("Gols Jogador Casa: {}", golsJogadorCasa);
 				
 				String golsJogadorVisitante = obtemGolsJogadosVisitante(document);
-				partidaDto.setGolsEquipeVisitante(golsJogadorVisitante);
+				partidaGoogleDTO.setGolsEquipeVisitante(golsJogadorVisitante);
 				LOGGER.info("Gols Jogador Visitante: {}", golsJogadorVisitante);
 				
 
 				int resultadoPenaltiCasa = obtemResutatoPenalti(document, CASA);
-				partidaDto.setPlacarEstendidoEquipeCasa(Integer.toString(resultadoPenaltiCasa));
+				partidaGoogleDTO.setPlacarEstendidoEquipeCasa(resultadoPenaltiCasa);
 				LOGGER.info("Penalti casa: {}", resultadoPenaltiCasa);
 
 				int resultadoPenaltiVisitante = obtemResutatoPenalti(document, VISITANTE);
-				partidaDto.setPlacarEstendidoEquipeVisitante(Integer.toString(resultadoPenaltiVisitante));
+				partidaGoogleDTO.setPlacarEstendidoEquipeVisitante(resultadoPenaltiVisitante);
 				LOGGER.info("Penalti visitante: {}", resultadoPenaltiVisitante);
 			}
 
 			String nomeEquipeCasa = obtemNomeEquipe(document, OBTEM_NOME_EQUIPE_CASA);
-			partidaDto.setNomeEquipeCasa(nomeEquipeCasa);
+			partidaGoogleDTO.setNomeEquipeCasa(nomeEquipeCasa);
 			LOGGER.info("Equipe casa: {}", nomeEquipeCasa);
 
 			String nomeEquipevisitante = obtemNomeEquipe(document, OBTEM_NOME_EQUIPE_VISITANTE);
-			partidaDto.setNomeEquipeVisitante(nomeEquipevisitante);
+			partidaGoogleDTO.setNomeEquipeVisitante(nomeEquipevisitante);
 			LOGGER.info("Equipe visitante: {}", nomeEquipevisitante);
 
 			String logoEquipeCasa = obtemImagemEquipe(document, OBTEM_NOME_EQUIPE_CASA);
-			partidaDto.setUrlLogEquipeCasa(logoEquipeCasa);
+			partidaGoogleDTO.setUrlLogoEquipeCasa(logoEquipeCasa);
 			LOGGER.info("Logo Equipe casa: {}", logoEquipeCasa);
 
 			String logoEquipeVisitante = obtemImagemEquipe(document, OBTEM_NOME_EQUIPE_VISITANTE);
-			partidaDto.setUrlLogEquipeVisitante(logoEquipeVisitante);
+			partidaGoogleDTO.setUrlLogoEquipeVisitante(logoEquipeVisitante);
 			LOGGER.info("Logo Equipe visitante: {}", logoEquipeVisitante);
 
 		} catch (IOException e) {
@@ -137,7 +139,7 @@ public class ScrapingUtil {
 
 		}
 
-		return partidaDto;
+		return partidaGoogleDTO;
 	}
 
 	public Integer obtemResutatoPenalti(Document document, String tipoEquipe) {
@@ -362,6 +364,11 @@ public class ScrapingUtil {
 			LOGGER.error("Error: {}", e);
 		}
 		
+		return null;
+	}
+
+	public PartidaGoogleDTO obtemInformacoesGoogle(String urlPartida) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
